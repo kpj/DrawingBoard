@@ -1,5 +1,5 @@
 // init socket io
-var socket = io.connect('http://localhost:4242');
+var socket = io.connect('%s://%s');
 socket.on('data', function(command) {
 	var action = command["action"];
 
@@ -36,6 +36,16 @@ socket.on('counter', function(data) {
 	console.log("Client count: " + num);
 	document.getElementById("client_num").innerHTML = num;
 });
+socket.on('reconnecting', function() {
+	console.log("Lost connection, trying to reconnect");
+});
+
+
+// helper functions
+function sendLine(line) {
+	socket.emit('data', {'action': 'new_lines', 'data': [line], 'color': $.cookie("drawingboard")});
+}
+
 
 // init all stuff
 $(document).ready(function() {
@@ -92,6 +102,12 @@ $(document).ready(function() {
 
 				// same here
 				curPath.push([e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY]);
+
+				// updates on the fly
+				/*if(curPath.length >= 50) {
+					sendLine(curPath);
+					curPath = [];
+				}*/
 			}
 		})
 		.on('mouseup', function(e) {
@@ -100,7 +116,7 @@ $(document).ready(function() {
 			ctx.closePath();
 
 			// broadcast it
-			socket.emit('data', {'action': 'new_lines', 'data': [curPath], 'color': $.cookie("drawingboard")});
+			sendLine(curPath);
 		});
 	}
 });

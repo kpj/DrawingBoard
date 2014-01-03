@@ -2,17 +2,13 @@ var http = require("http");
 var url = require("url");
 var fs = require("fs");
 
+var util = require("util");
 var utils = require("./utils");
 
 
 function start() {
 	function handleRequest(request, response) {
-		//response.setHeader('Access-Control-Allow-Origin', '*');
-	    //response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-	    //response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
- 
-
-		// handle incoming data
+		/// handle incoming data
 		if(request.method == "POST") {
 			var chunk = "";
 
@@ -29,6 +25,15 @@ function start() {
 				path = "/html/index.html";
 
 			fs.readFile("." + path, function(error, data) {
+				if(data === undefined)
+					return;
+
+				data = data.toString('utf8');
+				if(path == "/js/core.js") {
+					var protocol = (request.connection.encrypted === undefined) ? "http" : "https";
+					var host = request.headers.host;
+					data = util.format(data, protocol, host);
+				}
 				response.end(data);
 			});
 		}
