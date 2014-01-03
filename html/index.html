@@ -15,8 +15,11 @@
 		<script src="/js/core.js"></script>
 	</head>
 	<body>
-		<input type="button" value="Clear!" id="clear_canvas" /><br>
-		<input type="button" value="New color!" id="color_change" />
+		<div id="menu">
+			<input type="button" value="Clear!" id="clear_canvas" />
+			<input type="button" value="New color!" id="color_change" />
+			Connected clients: <b><span id="client_num">0</span></b>
+		</div>
 
 		<canvas id="canvas">
 			Your content!

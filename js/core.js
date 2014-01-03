@@ -31,6 +31,11 @@ socket.on('data', function(command) {
 		document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 	}
 });
+socket.on('counter', function(data) {
+	var num = data["number"];
+	console.log("Client count: " + num);
+	document.getElementById("client_num").innerHTML = num;
+});
 
 // init all stuff
 $(document).ready(function() {

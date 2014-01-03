@@ -11,3 +11,7 @@
 	border-style: dashed;
 	border-radius: 10px;
 }
+
+#menu {
+	float: left;
+}
