@@ -4,7 +4,7 @@ var app = server.start();
 var io = require('socket.io').listen(app);
 
 
-var current_image = [];
+var current_image = {};
 
 io.sockets.on('connection', function (socket) {
 	socket.emit('data', {'action': 'new_lines', 'data': current_image});
@@ -13,17 +13,23 @@ io.sockets.on('connection', function (socket) {
 		var action = command["action"];
 
 		if(action == "new_lines") {
+			var col = command['color'];
+
 			for(var p in command['data']) {
 				var line = command['data'][p];
-				current_image.push(line);
+
+				if(current_image[col] === undefined)
+					current_image[col] = [];
+				current_image[col].push(line);
 			}
 
-			socket.broadcast.emit('data', {'action': 'new_lines', 'data': command['data']});
-			console.log(current_image.length);
+			var sendMe = {};
+			sendMe[col] = command['data'];
+			socket.broadcast.emit('data', {'action': 'new_lines', 'data': sendMe});
 		} else if(action == "clear_lines") {
 			console.log("Clearing image...");
 
-			current_image = [];
+			current_image = {};
 			socket.broadcast.emit('data', {'action': 'clear_lines'});	
 		}
 	});

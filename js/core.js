@@ -6,22 +6,25 @@ socket.on('data', function(command) {
 	if(action == "new_lines") {
 		console.log("Got new lines");
 
-		// translate list into lines
-		var ctx = canvas.getContext("2d");
-		for(var p in command["data"]) {
-			var curLine = command["data"][p];
+		for(var color in command['data']) {
+			// translate list into lines
+			var ctx = canvas.getContext("2d");
+			for(var p in command["data"][color]) {
+				var curLine = command["data"][color][p];
 
-			ctx.beginPath();
+				ctx.beginPath();
 
-			ctx.moveTo(curLine[0][0], curLine[0][1]);
-			for(var i = 1 ; i < curLine.length ; i++) {
-				var curPoint = curLine[i];
+				ctx.moveTo(curLine[0][0], curLine[0][1]);
+				for(var i = 1 ; i < curLine.length ; i++) {
+					var curPoint = curLine[i];
 
-				ctx.lineTo(curPoint[0], curPoint[1]);
-				ctx.stroke();
+					ctx.lineTo(curPoint[0], curPoint[1]);
+					ctx.strokeStyle = color;
+					ctx.stroke();
+				}
+
+				ctx.closePath();
 			}
-
-			ctx.closePath();
 		}
 	} else if(action == "clear_lines") {
 		console.log("Got clear command");
@@ -57,7 +60,6 @@ $(document).ready(function() {
 
 		if($.cookie("drawingboard") == undefined)
 			$.cookie("drawingboard", getRandomColor());
-		ctx.strokeStyle = $.cookie("drawingboard");
 
 
 		var isDown = false;
@@ -78,6 +80,7 @@ $(document).ready(function() {
 		.on('mousemove', function(e) {
 			if(isDown) {
 				ctx.lineTo(e.offsetX, e.offsetY);
+				ctx.strokeStyle = $.cookie("drawingboard");
 				ctx.stroke();
 
 				// same here
@@ -90,7 +93,7 @@ $(document).ready(function() {
 			ctx.closePath();
 
 			// broadcast it
-			socket.emit('data', {'action': 'new_lines', 'data': [curPath]});
+			socket.emit('data', {'action': 'new_lines', 'data': [curPath], 'color': $.cookie("drawingboard")});
 		});
 	}
 });
