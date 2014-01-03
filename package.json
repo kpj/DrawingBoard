@@ -1,9 +1,17 @@
 {
-    "name": "App",
+    "name": "DrawingBoard",
     "version": "0.0.1",
-    "description": "App",
+    "author": "kpj <kpjkpjkpjkpjkpjkpj@gmail.com>",
+    "description": "Collaborative drawing board app",
+    "scripts": {
+    	"start": "./start"
+    },
+    "repository": {
+    	"type": "git",
+    	"url": "https://github.com/kpj/DrawingBoard.git"
+	},
     "dependencies": {
         "socket.io": "latest"
     },
-    "author": "developer"
+    "license": "MIT"
 }
