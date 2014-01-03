@@ -67,6 +67,8 @@ $(document).ready(function() {
 			$.cookie("drawingboard", getRandomColor());
 
 
+		var mouseOffsetX = -5;
+		var mouseOffsetY = -5;
 		var isDown = false;
 
 		ctx.lineWidth = 5;
@@ -76,20 +78,20 @@ $(document).ready(function() {
 			isDown = true;
 
 			ctx.beginPath();
-			ctx.moveTo(e.offsetX, e.offsetY);
+			ctx.moveTo(e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY);
 
 			// save for other clients
 			curPath = [];
-			curPath.push([e.offsetX, e.offsetY]);
+			curPath.push([e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY]);
 		})
 		.on('mousemove', function(e) {
 			if(isDown) {
-				ctx.lineTo(e.offsetX, e.offsetY);
+				ctx.lineTo(e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY);
 				ctx.strokeStyle = $.cookie("drawingboard");
 				ctx.stroke();
 
 				// same here
-				curPath.push([e.offsetX, e.offsetY]);
+				curPath.push([e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY]);
 			}
 		})
 		.on('mouseup', function(e) {
