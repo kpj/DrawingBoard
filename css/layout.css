@@ -1,3 +1,8 @@
+body {
+	margin-left: 0;
+	margin-top: 0;
+}
+
 #canvas {
 	position: absolute;
 
@@ -15,5 +20,10 @@
 }
 
 #menu {
-	float: left;
+	width: 100%;
+	padding: 0 3px 4px 3px;
+
+	border-radius: 0 0 15px 15px;
+	border-width: 1px;
+	border-style: dotted;
 }
