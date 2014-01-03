@@ -1,29 +1,32 @@
 // init socket io
 var socket = io.connect('http://localhost:4242');
-socket.on('new_lines', function(data) {
-	console.log("Got new lines");
+socket.on('data', function(command) {
+	var action = command["action"];
 
-	// translate list into lines
-	var ctx = canvas.getContext("2d");
-	for(var p in data) {
-		var curLine = data[p];
+	if(action == "new_lines") {
+		console.log("Got new lines");
 
-		ctx.beginPath();
+		// translate list into lines
+		var ctx = canvas.getContext("2d");
+		for(var p in command["data"]) {
+			var curLine = command["data"][p];
 
-		ctx.moveTo(curLine[0][0], curLine[0][1]);
-		for(var i = 1 ; i < curLine.length ; i++) {
-			var curPoint = curLine[i];
+			ctx.beginPath();
 
-			ctx.lineTo(curPoint[0], curPoint[1]);
-			ctx.stroke();
+			ctx.moveTo(curLine[0][0], curLine[0][1]);
+			for(var i = 1 ; i < curLine.length ; i++) {
+				var curPoint = curLine[i];
+
+				ctx.lineTo(curPoint[0], curPoint[1]);
+				ctx.stroke();
+			}
+
+			ctx.closePath();
 		}
-
-		ctx.closePath();
+	} else if(action == "clear_lines") {
+		console.log("Got clear command");
+		document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 	}
-});
-socket.on('clear_lines', function(data) {
-	console.log("Got clear command");
-	document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 });
 
 // init all stuff
@@ -31,7 +34,7 @@ $(document).ready(function() {
 	// init other elements
 	$("#clear_canvas").on('click', function() {
 		document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-		socket.emit('clear_lines', {});
+		socket.emit('data', {'action': 'clear_lines'});
 	});
 	$("#color_change").on('click', function() {
 		$.cookie("drawingboard", getRandomColor());
@@ -87,7 +90,7 @@ $(document).ready(function() {
 			ctx.closePath();
 
 			// broadcast it
-			socket.emit('new_line', {'line': curPath});
+			socket.emit('data', {'action': 'new_lines', 'data': [curPath]});
 		});
 	}
 });
