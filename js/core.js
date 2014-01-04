@@ -1,9 +1,6 @@
 // general variables
 var onthefly_handler = {};
 
-// init socket io
-var socket = io.connect('%s://%s');
-
 // image data
 socket.on('data', function(command) {
 	var action = command["action"];
@@ -116,6 +113,7 @@ $(document).ready(function() {
 		var isDown = false;
 		var ontheflyStep = 50;
 		var sentPointsNum = 0;
+		var curPath = [];
 
 		ctx.lineWidth = 5;
 								 
