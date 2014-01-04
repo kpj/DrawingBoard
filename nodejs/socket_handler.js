@@ -38,6 +38,13 @@ function onConnection(socket) {
 		}
 	});
 
+	// smoother drawing (onthefly)
+	socket.on('onthefly', function(command) {
+		var sendMe = {};
+		sendMe[command["color"]] = command['data'];
+		socket.broadcast.emit('onthefly', {'action': 'new_lines', 'data': sendMe, 'owner': socket.id});
+	});
+
 	// handle disconnects
 	socket.on('disconnect', function() {
         console.log('Client disconnected');
