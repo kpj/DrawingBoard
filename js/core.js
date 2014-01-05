@@ -110,10 +110,20 @@ $(document).ready(function() {
 
 		var mouseOffsetX = -5;
 		var mouseOffsetY = -5;
+
 		var isDown = false;
-		var ontheflyStep = 50;
+		
 		var sentPointsNum = 0;
 		var curPath = [];
+
+		var ontheflyStep = 50; // update every 50 data entries
+		var ontheflyClock = 1000; // update every 1000 milliseconds
+		var onthefly_update = function() {
+			var sender = curPath.slice(sentPointsNum);
+			sendLine(sender, "onthefly");
+			sentPointsNum += sender.length;
+		};
+		var onthefly_int = undefined;
 
 		ctx.lineWidth = 5;
 								 
@@ -127,6 +137,9 @@ $(document).ready(function() {
 			// save for other clients
 			curPath = [];
 			curPath.push([e.offsetX + mouseOffsetX, e.offsetY + mouseOffsetY]);
+
+			// improved updating
+			onthefly_int = window.setInterval(onthefly_update, ontheflyClock);
 		})
 		.on('mousemove', function(e) {
 			if(isDown) {
@@ -139,9 +152,7 @@ $(document).ready(function() {
 
 				// updates on the fly
 				if(curPath.length - sentPointsNum >= ontheflyStep) {
-					var sender = curPath.slice(Math.max(curPath.length - ontheflyStep, 1));
-					sendLine(sender, "onthefly");
-					sentPointsNum += sender.length;
+					onthefly_update();
 				}
 			}
 		})
@@ -153,6 +164,10 @@ $(document).ready(function() {
 
 			// broadcast it
 			sendLine(curPath, "data");
+
+			if(onthefly_int !== undefined) {
+				window.clearInterval(onthefly_int);
+			}
 		});
 	}
 });

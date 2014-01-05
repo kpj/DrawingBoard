@@ -30,7 +30,6 @@ function start() {
 
 				data = data.toString('utf8');
 				if(path.indexOf("dynamic_server_connection_handler.js") != -1) {
-					console.log(path);
 					var protocol = (request.connection.encrypted === undefined) ? "http" : "https";
 					var host = request.headers.host;
 					data = util.format(data, protocol, host);
