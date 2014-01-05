@@ -1,6 +1,24 @@
+var fs = require("fs");
+
+
 // general variables
 var current_image = {};
 var client_count = 0;
+
+// handle shutdown
+function gracefulExit() {
+	// clean up, save data
+	if(!fs.existsSync("tmp"))
+		fs.mkdirSync("tmp");
+	fs.writeFileSync("tmp/data.drb", JSON.stringify(current_image));
+
+	console.log("Saved data, exiting...");
+
+	// handle actual exit
+	process.removeListener('exit', gracefulExit);
+	process.exit();
+};
+process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit).on('exit', gracefulExit);
 
 
 // executed on socket connection
@@ -55,6 +73,9 @@ function onConnection(socket) {
 
 
 function implement(ios) {
+	if(fs.existsSync("tmp/data.drb"))
+		current_image = JSON.parse(fs.readFileSync("tmp/data.drb"));
+
 	io = ios;
 	io.sockets.on('connection', onConnection);
 }
