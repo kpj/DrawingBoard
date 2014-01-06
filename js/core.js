@@ -1,33 +1,46 @@
 // general variables
 var onthefly_handler = {};
 
+// helper functions
+function drawLines(data) {
+	var ctx = canvas.getContext("2d");
+	
+	var oldStrokeStyle = ctx.strokeStyle;
+	var oldLineWidth = ctx.lineWidth;
+
+	for(var p in data["data"]) {
+		var curLine = data["data"][p];
+		var color = data["color"];
+		var lineWidth = data["lineWidth"];
+
+		ctx.beginPath();
+
+		ctx.moveTo(curLine[0][0], curLine[0][1]);
+		for(var i = 1 ; i < curLine.length ; i++) {
+			var curPoint = curLine[i];
+
+			ctx.strokeStyle = color;
+			ctx.lineWidth = lineWidth;
+
+			ctx.lineTo(curPoint[0], curPoint[1]);
+			ctx.stroke();
+		}
+
+		ctx.closePath();
+	}
+
+	// restore old settings
+	ctx.strokeStyle = oldStrokeStyle;
+	ctx.lineWidth = oldLineWidth;
+}
+
 // image data
 socket.on('data', function(command) {
 	var action = command["action"];
 
 	if(action == "new_lines") {
 		console.log("Got new lines");
-
-		for(var color in command['data']) {
-			// translate list into lines
-			var ctx = canvas.getContext("2d");
-			for(var p in command["data"][color]) {
-				var curLine = command["data"][color][p];
-
-				ctx.beginPath();
-
-				ctx.moveTo(curLine[0][0], curLine[0][1]);
-				for(var i = 1 ; i < curLine.length ; i++) {
-					var curPoint = curLine[i];
-
-					ctx.lineTo(curPoint[0], curPoint[1]);
-					ctx.strokeStyle = color;
-					ctx.stroke();
-				}
-
-				ctx.closePath();
-			}
-		}
+		drawLines(command["data"]);
 	} else if(action == "clear_lines") {
 		console.log("Got clear command");
 		document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -51,30 +64,18 @@ socket.on('onthefly', function(command) {
 	var id = command["owner"];
 
 	// draw line
-	for(var color in command['data']) {
-		// translate list into lines
-		var ctx = canvas.getContext("2d");
-		for(var p in command["data"][color]) {
-			var curLine = command["data"][color][p];
-
-			ctx.beginPath();
-			ctx.moveTo(curLine[0][0], curLine[0][1]);
-			for(var i = 1 ; i < curLine.length ; i++) {
-				var curPoint = curLine[i];
-
-				ctx.lineTo(curPoint[0], curPoint[1]);
-				ctx.strokeStyle = color;
-				ctx.stroke();
-			}
-			ctx.closePath();
-		}
-	}
+	drawLines(command["data"]);
 });
 
 
 // helper functions
 function sendLine(line, type) {
-	socket.emit(type, {'action': 'new_lines', 'data': [line], 'color': $.cookie("drawingboard")});
+	socket.emit(type, {
+		'action': 'new_lines', 
+		'data': [line], 
+		'color': $.cookie("drawingboard"), 
+		'lineWidth': canvas.getContext("2d").lineWidth
+	});
 }
 
 
@@ -88,6 +89,9 @@ $(document).ready(function() {
 	$("#color_change").on('click', function() {
 		$.cookie("drawingboard", getRandomColor());
 		ctx.strokeStyle = $.cookie("drawingboard");
+	});
+	$('#line_width_slider').on('change', function(){
+    	canvas.getContext("2d").lineWidth = $('#line_width_slider').val();
 	});
 
 	var canvas = document.getElementById("canvas");

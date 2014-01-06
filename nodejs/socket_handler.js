@@ -2,7 +2,7 @@ var fs = require("fs");
 
 
 // general variables
-var current_image = {};
+var current_image = [];
 var client_count = 0;
 
 // handle shutdown
@@ -21,6 +21,15 @@ function gracefulExit() {
 process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit).on('exit', gracefulExit);
 
 
+// sends data to clients
+function tell_clients(socket, command) {
+	var sendMe = {};
+	sendMe['data'] = command['data'];
+	sendMe['color'] = command['color'];
+	sendMe['lineWidth'] = command['lineWidth'];
+	socket.broadcast.emit('onthefly', {'action': 'new_lines', 'data': sendMe, 'owner': socket.id});
+}
+
 // executed on socket connection
 function onConnection(socket) {
 	// update counter
@@ -36,31 +45,30 @@ function onConnection(socket) {
 
 		if(action == "new_lines") {
 			var col = command['color'];
+			var lineWidth = command['lineWidth'];
 
 			for(var p in command['data']) {
 				var line = command['data'][p];
 
-				if(current_image[col] === undefined)
-					current_image[col] = [];
-				current_image[col].push(line);
+				var entry = {};
+				entry['line'] = line;
+				entry['color'] = col;
+				entry['lineWidth'] = lineWidth;
+				current_image.push(entry);
 			}
 
-			var sendMe = {};
-			sendMe[col] = command['data'];
-			socket.broadcast.emit('data', {'action': 'new_lines', 'data': sendMe});
+			tell_clients(socket, command);
 		} else if(action == "clear_lines") {
 			console.log("Clearing image...");
 
-			current_image = {};
+			current_image = [];
 			socket.broadcast.emit('data', {'action': 'clear_lines'});	
 		}
 	});
 
 	// smoother drawing (onthefly)
 	socket.on('onthefly', function(command) {
-		var sendMe = {};
-		sendMe[command["color"]] = command['data'];
-		socket.broadcast.emit('onthefly', {'action': 'new_lines', 'data': sendMe, 'owner': socket.id});
+		tell_clients(socket, command);
 	});
 
 	// handle disconnects
