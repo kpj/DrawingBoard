@@ -23,11 +23,17 @@ process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit).on('exit', gracef
 
 // sends data to clients
 function tell_clients(socket, command) {
-	var sendMe = {};
-	sendMe['data'] = command['data'];
-	sendMe['color'] = command['color'];
-	sendMe['lineWidth'] = command['lineWidth'];
-	socket.broadcast.emit('onthefly', {'action': 'new_lines', 'data': sendMe, 'owner': socket.id});
+	var res = [];
+	for(var p in command['data']) {
+		var sendMe = {};
+
+		sendMe['line'] = command['data'][p];
+		sendMe['color'] = command['color'];
+		sendMe['lineWidth'] = command['lineWidth'];
+
+		res.push(sendMe);
+	}
+	socket.broadcast.emit('onthefly', {'action': 'new_lines', 'data': res, 'owner': socket.id});
 }
 
 // executed on socket connection
@@ -47,6 +53,7 @@ function onConnection(socket) {
 			var col = command['color'];
 			var lineWidth = command['lineWidth'];
 
+			// command['data'] == list of lines
 			for(var p in command['data']) {
 				var line = command['data'][p];
 
