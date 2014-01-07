@@ -1,4 +1,4 @@
-function setupCanvas() {
+function setupCanvas(canvas) {
 	var ctx = canvas.getContext("2d");
 
 

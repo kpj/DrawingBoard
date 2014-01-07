@@ -5,21 +5,23 @@ var onthefly_handler = {};
 $(document).ready(function() {
 	// init other elements
 	$("#clear_canvas").on('click', function() {
-		document.getElementById("canvas").getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+		$('#canvas')[0].getContext('2d').clearRect(0, 0, $('#canvas').width(), $('#canvas').height());
 		socket.emit('data', {'action': 'clear_lines'});
 	});
 	$("#color_change").on('click', function() {
 		$.cookie("drawingboard", getRandomColor());
-		ctx.strokeStyle = $.cookie("drawingboard");
+		$('#canvas')[0].getContext('2d').strokeStyle = $.cookie("drawingboard");
 	});
 	$('#line_width_slider').on('change', function(){
-    	canvas.getContext("2d").lineWidth = $('#line_width_slider').val();
+    	$('#canvas')[0].getContext('2d').lineWidth = $('#line_width_slider').val();
 	});
 
+
 	var canvas = document.getElementById("canvas");
-	// innit canvas
+
+	// init canvas
 	if(canvas) {
 		console.log("Initializing canvas...");
-		setupCanvas();
+		setupCanvas(canvas);
 	}
 });
