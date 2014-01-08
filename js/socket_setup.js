@@ -1,16 +1,21 @@
 // helper functions
 function drawLines(data) {
 	var ctx = canvas.getContext("2d");
-	
-	var oldStrokeStyle = ctx.strokeStyle;
-	var oldLineWidth = ctx.lineWidth;
 
 	for(var p in data) {
 		var curEntry = data[p];
 
+		// create backup
+		var backup = {};
+		for(var key in curEntry["properties"]) {
+			backup[key] = ctx[key];
+		}
+
 		var curLine = curEntry["line"];
-		var color = curEntry["color"];
-		var lineWidth = curEntry["lineWidth"];
+		var props = {};
+		for(var key in curEntry["properties"]) {
+			props[key] = curEntry["properties"][key];
+		}
 
 		ctx.beginPath();
 
@@ -18,19 +23,22 @@ function drawLines(data) {
 		for(var i = 1 ; i < curLine.length ; i++) {
 			var curPoint = curLine[i];
 
-			ctx.strokeStyle = color;
-			ctx.lineWidth = lineWidth;
+			// set properties
+			for(var key in curEntry["properties"]) {
+				ctx[key] = props[key];
+			}
 
 			ctx.lineTo(curPoint[0], curPoint[1]);
 			ctx.stroke();
 		}
 
 		ctx.closePath();
-	}
 
-	// restore old settings
-	ctx.strokeStyle = oldStrokeStyle;
-	ctx.lineWidth = oldLineWidth;
+		// restore old settings
+		for(var key in curEntry["properties"]) {
+			ctx[key] = backup[key];
+		}
+	}
 }
 
 // image data
@@ -70,9 +78,11 @@ socket.on('onthefly', function(command) {
 // helper functions
 function sendLine(line, type) {
 	socket.emit(type, {
-		'action': 'new_lines', 
-		'data': [line], 
-		'color': $.cookie("drawingboard"), 
-		'lineWidth': $("#canvas")[0].getContext("2d").lineWidth
+		'action': 'new_lines',
+		'data': [line],
+		'properties': {
+			'strokeStyle': $.cookie("drawingboard"), 
+			'lineWidth': $("#canvas")[0].getContext("2d").lineWidth,
+		}
 	});
 }

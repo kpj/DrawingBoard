@@ -28,8 +28,7 @@ function tell_clients(socket, command) {
 		var sendMe = {};
 
 		sendMe['line'] = command['data'][p];
-		sendMe['color'] = command['color'];
-		sendMe['lineWidth'] = command['lineWidth'];
+		sendMe['properties'] = command['properties'];
 
 		res.push(sendMe);
 	}
@@ -50,20 +49,18 @@ function onConnection(socket) {
 		var action = command["action"];
 
 		if(action == "new_lines") {
-			var col = command['color'];
-			var lineWidth = command['lineWidth'];
-
-			// command['data'] == list of lines
+			// save to own data structure
 			for(var p in command['data']) {
+				// command['data'] == list of lines
 				var line = command['data'][p];
 
 				var entry = {};
 				entry['line'] = line;
-				entry['color'] = col;
-				entry['lineWidth'] = lineWidth;
+				entry['properties'] = command['properties'];
 				current_image.push(entry);
 			}
 
+			// broadcast changes
 			tell_clients(socket, command);
 		} else if(action == "clear_lines") {
 			console.log("Clearing image...");
