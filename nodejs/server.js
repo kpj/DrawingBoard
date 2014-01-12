@@ -6,6 +6,19 @@ var util = require("util");
 var utils = require("./utils");
 
 
+function getMIMEType(path) {
+	var end = path.split('.').pop();
+
+	if(end == "html")
+		return "text/html";
+	else if(end == "js")
+		return "text/javascript";
+	else if(end == "css")
+		return "text/css";
+	else
+		return "text/plain"
+}
+
 function start() {
 	function handleRequest(request, response) {
 		/// handle incoming data
@@ -23,6 +36,9 @@ function start() {
 			console.log("Received request: " + path);
 			if(path == "/" || path == "/index.html")
 				path = "/html/index.html";
+
+			// handle MIME type
+			response.setHeader('Content-Type', getMIMEType(path));
 
 			fs.readFile("." + path, function(error, data) {
 				if(data === undefined)
