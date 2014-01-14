@@ -12,6 +12,9 @@ function drawLines(data) {
 		}
 
 		var curLine = curEntry["line"];
+		if(curLine.length == 0)
+			continue;
+
 		var props = {};
 		for(var key in curEntry["properties"]) {
 			props[key] = curEntry["properties"][key];
