@@ -87,7 +87,6 @@ function setupCanvas(canvas) {
 		e.preventDefault();
 		var touch = e.originalEvent.changedTouches[0];
 		var offset = $('#canvas').offset();
-		console.log(touch);
 		pointerDown(ctx, touch.clientX - offset.left, touch.clientY - offset.top);
 	})
 	.on('touchmove', function(e) {
