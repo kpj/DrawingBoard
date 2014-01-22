@@ -20,7 +20,7 @@ function drawLines(data) {
 			props[key] = curEntry["properties"][key];
 		}
 
-		ctx.beginPath();
+		var path = new paper.Path();
 
 		ctx.moveTo(curLine[0][0], curLine[0][1]);
 		for(var i = 1 ; i < curLine.length ; i++) {
@@ -28,14 +28,14 @@ function drawLines(data) {
 
 			// set properties
 			for(var key in curEntry["properties"]) {
-				ctx[key] = props[key];
+				//path[key] = props[key];
 			}
 
-			ctx.lineTo(curPoint[0], curPoint[1]);
-			ctx.stroke();
+			path.add(new paper.Point(curPoint[0], curPoint[1]));
 		}
 
-		ctx.closePath();
+		path.simplify(10);
+		path.smooth();
 
 		// restore old settings
 		for(var key in curEntry["properties"]) {
@@ -80,6 +80,20 @@ socket.on('onthefly', function(command) {
 
 // helper functions
 function sendLine(line, type) {
+	if(type == "data") {
+		var path = new paper.Path();
+		path.strokeColor = $.cookie("drawingboard");
+		path.strokeWidth = $("#canvas")[0].getContext("2d").lineWidth;
+
+		for(var p in line) {
+			var point = line[p];
+			path.add(new paper.Point(point[0], point[1]));
+		}
+
+		path.simplify(10);
+		path.smooth();
+	}
+
 	socket.emit(type, {
 		'action': 'new_lines',
 		'data': [line],

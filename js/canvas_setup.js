@@ -56,8 +56,8 @@ function setupCanvas(canvas) {
 		$.cookie("drawingboard", getRandomColor());
 
 
-	var mouseOffsetX = -5;
-	var mouseOffsetY = -5;
+	var mouseOffsetX = 3;
+	var mouseOffsetY = -4;
 
 	var isDown = false;
 	
@@ -97,4 +97,7 @@ function setupCanvas(canvas) {
 	})
 	.on('touchend', function(e) { pointerUp(ctx) })
 	.on('touchcancel', function(e) { pointerUp(ctx) });
+
+	// init paper-js
+	paper.setup($('#canvas')[0])
 }
